@@ -13,32 +13,28 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(2),
     },
   }));
-
+  
 function PatientSelect (props) {
     const classes = useStyles();
-    // const [state, setState] = React.useState({
-    //   age: '',
-    //   name: 'hai',
-    // });
-  
-    // const handleChange = (event) => {
-    //   const name = event.target.name;
-    //   setState({
-    //     ...state,
-    //     [name]: event.target.value,
-    //   });
-    // };
+
     const [patients, setPatients] = useState([]);
-    const [sValue, setSValue] = useState("");
-    const patientsUrl = "http://ngs-lbd.mf.uni-lj.si:64000/patients2/?api_key=NZTXG3DCMQ="
+    const [sValue, setSValue] = useState(patients[0]);
+    const [error, setError] = useState(null)
     let pType = props.pType.toLowerCase();
 
     const handleChange = (e) => {
-        setSValue( e.target.value);
+        setSValue(e.target.value);
         props.onPatientChange(e.target.value);
     } 
     useEffect(() => {
-        fetch(patientsUrl) 
+      getPatient(pType);
+    },[pType])
+    
+    async function getPatient(pType) {
+      //const patientsUrl = "http://ngs-lbd.mf.uni-lj.si:64000/patients2/?api_key=NZTXG3DCMQ="
+      const patientsUrl = "http://ngs-lbd.mf.uni-lj.si:64000/patients2/?api_key=NZTXG3DCMQ="  //gresno api
+
+      fetch(patientsUrl) 
         .then(res => res.json())
         .then(data => 
             pType !== "all" ?
@@ -49,9 +45,9 @@ function PatientSelect (props) {
             setPatients(data.records
                 .filter(p => p.patient_id != null && p.patient_id.length < 70 )
                 .map(p => p.patient_id))
-        );
-    },[pType])
-
+        )
+      
+  }
     return (
         <FormControl variant="outlined" className={classes.formControl}>
         <InputLabel htmlFor="select_patient_id">Choose patient </InputLabel>
@@ -61,7 +57,7 @@ function PatientSelect (props) {
             label="Choose patient"
             value={sValue}
             inputProps={{
-                name: '',
+               // name: '',
                 id: 'select_patient_id',
             }}
         >
@@ -70,7 +66,9 @@ function PatientSelect (props) {
               )}
         </Select>
         </FormControl>
+
     );
+
   }
 
 export default PatientSelect;
